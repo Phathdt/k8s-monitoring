@@ -1,0 +1,111 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: frontend
+#   namespace: demo-gateway
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: frontend
+#   template:
+#     metadata:
+#       labels:
+#         app: frontend
+#       annotations:
+#         consul.hashicorp.com/connect-inject: 'true'
+#     spec:
+#       containers:
+#         - name: frontend
+#           image: nicholasjackson/fake-service:v0.25.2
+#           ports:
+#             - containerPort: 9090
+#           env:
+#             - name: 'LISTEN_ADDR'
+#               value: '0.0.0.0:9090'
+#             - name: 'UPSTREAM_URIS'
+#               value: 'http://backend'
+#             - name: 'NAME'
+#               value: 'frontend'
+#             - name: 'MESSAGE'
+#               value: 'Hello world'
+#             - name: 'HTTP_CLIENT_KEEP_ALIVES'
+#               value: 'false'
+# ---
+# apiVersion: consul.hashicorp.com/v1alpha1
+# kind: ServiceDefaults
+# metadata:
+#   name: frontend
+#   namespace: demo-gateway
+# spec:
+#   protocol: 'http'
+---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: backend
+#   namespace: demo-gateway
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: backend
+#   template:
+#     metadata:
+#       labels:
+#         app: backend
+#       annotations:
+#         consul.hashicorp.com/connect-inject: 'true'
+#     spec:
+#       containers:
+#         - name: backend
+#           image: nicholasjackson/fake-service:v0.25.2
+#           ports:
+#             - containerPort: 9090
+#           env:
+#             - name: 'LISTEN_ADDR'
+#               value: '0.0.0.0:9090'
+#             - name: 'NAME'
+#               value: 'backend'
+#             - name: 'MESSAGE'
+#               value: 'response from backend'
+# ---
+# apiVersion: consul.hashicorp.com/v1alpha1
+# kind: ServiceDefaults
+# metadata:
+#   name: backend
+#   namespace: demo-gateway
+# spec:
+#   protocol: 'http'
+# ---
+# apiVersion: consul.hashicorp.com/v1alpha1
+# kind: ServiceIntentions
+# metadata:
+#   name: backend
+#   namespace: demo-gateway
+# spec:
+#   destination:
+#     name: backend
+#   sources:
+#     - name: frontend
+#       action: allow
+# ---
+# kind: HTTPRoute
+# apiVersion: gateway.networking.k8s.io/v1beta1
+# metadata:
+#   name: route-external-frontend
+#   namespace: demo-gateway
+# spec:
+#   parentRefs:
+#     - kind: Gateway
+#       name: external-http
+#       namespace: default
+#   hostnames:
+#     - 'frontend.kanesa.xyz'
+#   rules:
+#     - matches:
+#         - path:
+#             value: /
+#       backendRefs:
+#         - name: frontend
+#           port: 9090

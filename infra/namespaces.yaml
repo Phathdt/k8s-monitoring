@@ -19,3 +19,11 @@ metadata:
   name: portalit
   labels:
     shared-gateway-access: 'true'
+    connect-inject: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-gateway
+  labels:
+    shared-gateway-access: 'true'

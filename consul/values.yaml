@@ -9,7 +9,6 @@ server:
 
 connectInject:
   enabled: true
-  default: false
   transparentProxy:
     defaultEnabled: true
 
