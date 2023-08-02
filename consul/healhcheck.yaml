@@ -1,0 +1,16 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: consul-lb-healthcheck
+  namespace: consul
+spec:
+  default:
+    config:
+      type: HTTP
+      httpHealthCheck:
+        port: 8500
+        requestPath: /ui/
+  targetRef:
+    group: ''
+    kind: Service
+    name: consul-ui

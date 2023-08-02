@@ -1,0 +1,31 @@
+global:
+  name: consul
+  metrics:
+    enabled: true
+
+server:
+  replicas: 1
+  connect: true
+
+connectInject:
+  enabled: true
+  default: false
+  transparentProxy:
+    defaultEnabled: true
+
+controller:
+  enabled: true
+
+client:
+  enabled: true
+  grpc: true
+
+connect:
+  enabled: true
+
+ui:
+  service:
+    port:
+      http: 8500
+    annotations: |
+      "cloud.google.com/neg": '{"ingress": true}'
